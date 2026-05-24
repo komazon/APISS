@@ -1,0 +1,13 @@
+{
+  "itemGroup.mcmodapis": "Example Mod Tab",
+  "block.mcmodapis.example_block": "Example Block",
+  "item.mcmodapis.example_item": "Example Item",
+
+  "mcmodapis.configuration.title": "121API Configs",
+  "mcmodapis.configuration.section.mcmodapis.common.toml": "121API Configs",
+  "mcmodapis.configuration.section.mcmodapis.common.toml.title": "121API Configs",
+  "mcmodapis.configuration.items": "Item List",
+  "mcmodapis.configuration.logDirtBlock": "Log Dirt Block",
+  "mcmodapis.configuration.magicNumberIntroduction": "Magic Number Text",
+  "mcmodapis.configuration.magicNumber": "Magic Number"
+}
