@@ -7,32 +7,19 @@
 *.so
 *.a
 *.out
-*.pyc
-__pycache__/
+build/
+target/
 
 # Dependencies
-node_modules/
-venv/
-.venv/
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
-.julia/
-zig*/
-julia-*/
-
-# Build directories
-dist/
-build/
-coverage/
-htmlcov/
+lib/
+libs/
+dependency/
+dependencies/
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-*.swo
 
 # Environment
 .env
@@ -48,7 +35,20 @@ htmlcov/
 # System files
 .DS_Store
 Thumbs.db
-.Coverage
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+
+# Gradle
+.gradle/
 
 # Compressed files
 *.zip
