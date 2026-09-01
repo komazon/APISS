@@ -57,4 +57,24 @@ public class Configuration {
     public Property get(String key) {
         return properties.computeIfAbsent(key, k -> new Property("", ""));
     }
+
+    // 1.12.2 互換：boolean デフォルト値を持つ get メソッド
+    public Property get(String category, String key, boolean defaultValue) {
+        return get(category, key, Boolean.toString(defaultValue), "");
+    }
+
+    // 1.12.2 互換：int デフォルト値を持つ get メソッド
+    public Property get(String category, String key, int defaultValue) {
+        return get(category, key, Integer.toString(defaultValue), "");
+    }
+
+    // 1.12.2 互換：boolean デフォルト値とコメントを持つ get メソッド
+    public Property get(String category, String key, boolean defaultValue, String comment) {
+        return get(category, key, Boolean.toString(defaultValue), comment);
+    }
+
+    // 1.12.2 互換：int デフォルト値とコメントを持つ get メソッド
+    public Property get(String category, String key, int defaultValue, String comment) {
+        return get(category, key, Integer.toString(defaultValue), comment);
+    }
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,31 +20,32 @@ import java.util.List;
  * 【Phase 1 MVP】ライフサイクル・ブリッジ
  *
  * 役割:
- *   1. 1.12.2 ModのクラスをスキャンしてModインスタンスを生成する
+ *   1. 1.12.2 Mod のクラスをスキャンして Mod インスタンスを生成する
  *   2. @EventHandler が付いたメソッドを発見する
  *   3. 現代の FMLCommonSetupEvent 発火時に、ダミーの FMLPreInitializationEvent /
  *      FMLInitializationEvent / FMLPostInitializationEvent を生成して渡し、
- *      1.12.2Modのメソッドを強制的に実行する
+ *      1.12.2Mod のメソッドを強制的に実行する
+ *   4. @Mod アノテーションの proxyFactory/proxy クラスを読み取り、proxy フィールドを初期化する
  *
- * 設計書 「実装手順 2: ライフサイクル・ブリッジ」 に相当。
+ * 設計書「実装手順 2: ライフサイクル・ブリッジ」に相当。
  */
 public class LegacyModLifecycleBridge {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LegacyModLifecycleBridge.class);
 
     /**
-     * ロード済みの 1.12.2 Modエントリ。
+     * ロード済みの 1.12.2 Mod エントリ。
      * 将来的には LegacyModDiscoverer がここにエントリを追加する。
      */
     private final List<LegacyModEntry> loadedMods = new ArrayList<>();
     private boolean postInitFired = false;
 
-    // ─── 公開API ───
+    // ─── 公開 API ───
 
     /**
-     * 1.12.2Modのクラスとインスタンスを手動で登録する。
-     * Phase 1では、テスト用に直接呼び出すことを想定。
-     * Phase 2以降は LegacyModDiscoverer が自動的に呼び出す。
+     * 1.12.2Mod のクラスとインスタンスを手動で登録する。
+     * Phase 1 では、テスト用に直接呼び出すことを想定。
+     * Phase 2 以降は LegacyModDiscoverer が自動的に呼び出す。
      *
      * @param modClass   @Mod アノテーションが付いたクラス
      * @param modInstance そのクラスのインスタンス（リフレクションで生成済み）
@@ -63,7 +65,7 @@ public class LegacyModLifecycleBridge {
         }
 
         String modId = modAnnotation.modid();
-        LOGGER.info("[互換レイヤー] 1.12.2 Mod を登録: modId={}, class={}", modId, modClass.getName());
+        LOGGER.info("[互換レイヤー] 1.12.2 Mod を登録：modId={}, class={}", modId, modClass.getName());
 
         // @EventHandler が付いたメソッドを全スキャン
         List<Method> preInitMethods  = new ArrayList<>();
@@ -79,28 +81,88 @@ public class LegacyModLifecycleBridge {
             Class<?> paramType = params[0];
             if (paramType.equals(FMLPreInitializationEvent.class)) {
                 preInitMethods.add(method);
-                LOGGER.debug("[互換レイヤー]   PreInit メソッド発見: {}", method.getName());
+                LOGGER.debug("[互換レイヤー]   PreInit メソッド発見：{}", method.getName());
             } else if (paramType.equals(FMLInitializationEvent.class)) {
                 initMethods.add(method);
-                LOGGER.debug("[互換レイヤー]   Init メソッド発見: {}", method.getName());
+                LOGGER.debug("[互換レイヤー]   Init メソッド発見：{}", method.getName());
             } else if (paramType.equals(FMLPostInitializationEvent.class)) {
                 postInitMethods.add(method);
-                LOGGER.debug("[互換レイヤー]   PostInit メソッド発見: {}", method.getName());
+                LOGGER.debug("[互換レイヤー]   PostInit メソッド発見：{}", method.getName());
             }
         }
+
+        // proxy フィールドの初期化を試みる
+        initializeProxyField(modClass, modInstance, modAnnotation);
 
         loadedMods.add(new LegacyModEntry(
                 modId, modInstance, preInitMethods, initMethods, postInitMethods, metadata));
     }
 
     /**
+     * @Mod アノテーションから proxy クラス情報を読み取り、proxy フィールドを初期化する。
+     */
+    private void initializeProxyField(Class<?> modClass, Object modInstance, Mod modAnnotation) {
+        // proxy フィールドを探す
+        Field proxyField = null;
+        try {
+            proxyField = modClass.getDeclaredField("proxy");
+            proxyField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            LOGGER.debug("[互換レイヤー] {} に proxy フィールドが見つかりません", modClass.getSimpleName());
+            return;
+        }
+
+        // 既に設定されている場合はスキップ
+        try {
+            if (proxyField.get(modInstance) != null) {
+                LOGGER.debug("[互換レイヤー] {} の proxy フィールドは既に設定されています", modClass.getSimpleName());
+                return;
+            }
+        } catch (IllegalAccessException e) {
+            LOGGER.warn("[互換レイヤー] proxy フィールドへのアクセスに失敗しました", e);
+            return;
+        }
+
+        // clientSideProxy または serverSideProxy からクラス名を取得
+        String proxyClassName = null;
+        
+        // まず clientSideProxy を試す（クライアント環境なので）
+        if (!modAnnotation.clientSideProxy().isEmpty()) {
+            proxyClassName = modAnnotation.clientSideProxy();
+            LOGGER.debug("[互換レイヤー] clientSideProxy を使用：{}", proxyClassName);
+        } else if (!modAnnotation.serverSideProxy().isEmpty()) {
+            proxyClassName = modAnnotation.serverSideProxy();
+            LOGGER.debug("[互換レイヤー] serverSideProxy を使用：{}", proxyClassName);
+        }
+
+        if (proxyClassName == null || proxyClassName.isEmpty()) {
+            LOGGER.debug("[互換レイヤー] {} に proxy クラス指定がありません", modClass.getSimpleName());
+            return;
+        }
+
+        // proxy クラスをロードしてインスタンス化
+        try {
+            Class<?> proxyClass = Class.forName(proxyClassName);
+            Object proxyInstance = proxyClass.getDeclaredConstructor().newInstance();
+            proxyField.set(modInstance, proxyInstance);
+            LOGGER.info("[互換レイヤー] {} の proxy フィールドを初期化：{} -> {}", 
+                    modClass.getSimpleName(), proxyClassName, proxyInstance.getClass().getSimpleName());
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("[互換レイヤー] proxy クラスが見つかりません：{}", proxyClassName, e);
+        } catch (InstantiationException | IllegalAccessException | 
+                 java.lang.reflect.InvocationTargetException | NoSuchMethodException e) {
+            LOGGER.error("[互換レイヤー] proxy インスタンスの生成に失敗しました：{}", proxyClassName, e);
+        }
+    }
+
+    /**
      * 現代の FMLCommonSetupEvent に対応して呼び出す。
-     * 全登録済み1.12.2Modの PreInit → Init → PostInit を順に発火する。
+     * 全登録済み 1.12.2Mod の PreInit → Init → PostInit を順に発火する。
      *
      * McModAPIs の commonSetup() からこのメソッドを呼ぶこと。
      */
     public void onCommonSetup(FMLCommonSetupEvent event) {
-        // configディレクトリ: 現代の "config/" フォルダ
+        // config ディレクトリ：現代の "config/" フォルダ
         File configDir = new File("config");
 
         for (LegacyModEntry entry : loadedMods) {
@@ -150,17 +212,17 @@ public class LegacyModLifecycleBridge {
             try {
                 method.setAccessible(true);
                 method.invoke(instance, event);
-                LOGGER.debug("[互換レイヤー] {} フェーズ: {}.{}() 実行完了",
+                LOGGER.debug("[互換レイヤー] {} フェーズ：{}.{}() 実行完了",
                         phaseName, instance.getClass().getSimpleName(), method.getName());
             } catch (Exception e) {
-                LOGGER.error("[互換レイヤー] {} フェーズ: {}.{}() の実行中にエラー",
+                LOGGER.error("[互換レイヤー] {} フェーズ：{}.{}() の実行中にエラー",
                         phaseName, instance.getClass().getSimpleName(), method.getName(), e);
             }
         }
     }
 
     /**
-     * ロード済み1.12.2Modのエントリを保持するレコード。
+     * ロード済み 1.12.2Mod のエントリを保持するレコード。
      */
     private record LegacyModEntry(
             String modId,
