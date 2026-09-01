@@ -1,0 +1,9 @@
+JVM Args:          "-Xmx4g"
+Run Args:          "-log=error", "--decompile-inner", "--remove-bridge", "--decompile-generics", "--ascii-strings", "--remove-synthetic", "--include-classpath", "--ignore-invalid-bytecode", "--bytecode-source-mapping", "--dump-code-lines", "--indent-string=    ", "-cfg=/workspace/build/neoForm/neoFormJoined26.1.2-1/steps/listLibraries/libraries.txt", "/workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup/outputs.jar", "/workspace/build/neoForm/neoFormJoined26.1.2-1/steps/decompile/outputs.jar"
+JVM:               /root/.gradle/jdks/eclipse_adoptium-25-amd64-linux.2/bin/java
+Classpath:         /root/.gradle/caches/modules-2/files-2.1/net.neoforged/vineflower-plugins/0.1.5/dd9b3ec730bc38defe928b0871e60e7a60b0119a/vineflower-plugins-0.1.5.jar, /root/.gradle/caches/modules-2/files-2.1/org.vineflower/vineflower/1.11.2/f02c1f554d5bd9cc0fd74d4977efba364d85e739/vineflower-1.11.2.jar
+Working Dir:       /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/decompile
+Main Class:        org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler
+Program log file:  /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/decompile/log.log
+Output file:       /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/decompile/outputs.jar
+OpenJDK 64-Bit Server VM warning: INFO: os::commit_memory(0x0000000711200000, 547356672, 0) failed; error='Not enough space' (errno=12)
