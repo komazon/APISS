@@ -32,7 +32,9 @@ public class LegacyBlock extends Block {
     /**
      * 譛繧ゆｸ闊ｬ逧・↑ 1.12.2 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ: Material 繧貞女縺大叙繧九・     * 莠呈鋤繝ｬ繧､繝､繝ｼ縺ｧ Material 竊・MapColor 縺ｫ繝槭ャ繝斐Φ繧ｰ縺励※迴ｾ莉｣縺ｮ Properties 繧堤函謌舌・     */
     public LegacyBlock(LegacyMaterial material) {
-        super(mapMaterialToProperties(material));
+        super(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(1.5f, 6.0f));
+        this._legacyRegistryName = null; // explicitly initialize to avoid NPE
+        this._unlocalizedName = null;
         LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] LegacyBlock 逕滓・: material={}", material);
     }
 

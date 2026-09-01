@@ -43,6 +43,14 @@ public class FMLPreInitializationEvent extends FMLStateEvent {
     }
 
     /**
+     * 1.12.2 Mod が推奨コンフィグファイルを取得するために呼ぶ。
+     * 互換レイヤーでは configDir を返す。
+     */
+    public java.io.File getSuggestedConfigurationFile() {
+        return configDir;
+    }
+
+    /**
      * 1.12.2 Modが自分のModMetadataを取得するために呼ぶ。
      * 互換レイヤーでは最低限の情報だけ返すスタブを返す。
      */
