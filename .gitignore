@@ -1,21 +1,30 @@
 ```
 # Compiled and build artifacts
-*.class
+*.pyc
+__pycache__/
 *.o
 *.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
 *.out
-build/
-target/
 
 # Dependencies
+node_modules/
+venv/
+.venv/
+.mypy_cache/
+.pytest_cache/
+target/
 .gradle/
-lib/
-libs/
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+*.swo
 
 # Environment
 .env
@@ -25,11 +34,13 @@ libs/
 # Editors
 .vscode/
 .idea/
-*.iml
-*.ipr
-*.iws
 
-# System files
+# Build system
+build/
+dist/
+.run/
+
+# OS generated files
 .DS_Store
 Thumbs.db
 ```
