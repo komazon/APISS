@@ -36,6 +36,7 @@ public class LegacyModLifecycleBridge {
      * 将来的には LegacyModDiscoverer がここにエントリを追加する。
      */
     private final List<LegacyModEntry> loadedMods = new ArrayList<>();
+    private boolean postInitFired = false;
 
     // ─── 公開API ───
 
@@ -69,7 +70,7 @@ public class LegacyModLifecycleBridge {
         List<Method> initMethods     = new ArrayList<>();
         List<Method> postInitMethods = new ArrayList<>();
 
-        for (Method method : modClass.getDeclaredMethods()) {
+        for (Method method : modClass.getMethods()) {
             if (!method.isAnnotationPresent(Mod.EventHandler.class)) continue;
 
             Class<?>[] params = method.getParameterTypes();
@@ -115,12 +116,25 @@ public class LegacyModLifecycleBridge {
                     new FMLInitializationEvent(entry.modId);
             invokeAll(entry.initMethods, entry.modInstance, initEvent, "Init");
 
-            // ── PostInitializationEvent ──
+            LOGGER.info("[互換レイヤー] === {} の PreInit/Init フェーズ完了 ===", entry.modId);
+        }
+    }
+
+    /**
+     * 現代の RegisterEvent による旧レジストリ登録が完了したときに呼び出す。
+     */
+    public void onLegacyRegistryComplete() {
+        if (postInitFired) {
+            return;
+        }
+        postInitFired = true;
+
+        for (LegacyModEntry entry : loadedMods) {
+            LOGGER.info("[互換レイヤー] === {} の PostInit を開始 ===", entry.modId);
             FMLPostInitializationEvent postInitEvent =
                     new FMLPostInitializationEvent(entry.modId);
             invokeAll(entry.postInitMethods, entry.modInstance, postInitEvent, "PostInit");
-
-            LOGGER.info("[互換レイヤー] === {} のライフサイクル完了 ===", entry.modId);
+            LOGGER.info("[互換レイヤー] === {} の PostInit 完了 ===", entry.modId);
         }
     }
 

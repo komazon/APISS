@@ -1,13 +1,13 @@
 package net.minecraftforge.fml.common.network;
 
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.compat.network.SimpleNetworkWrapper;
 
 /**
  * 互換レイヤー: 1.12.2 の NetworkRegistry のダミー実装。
  *
- * 1.12.2 では NetworkRegistry.INSTANCE.registerGuiHandler(...) を使って
- * GUI ハンドラを登録します。NeoForge 互換レイヤーでは実際の登録処理を
- * 行わず、古い mod がクラスを解決できるようにします。
+ * newSimpleChannel() はインスタンスメソッドとして提供する。
+ * NGTLib は NetworkRegistry.INSTANCE.newSimpleChannel(...) のように
+ * インスタンス経由で呼び出すため、static にしてはならない。
  */
 public class NetworkRegistry {
 
@@ -17,19 +17,15 @@ public class NetworkRegistry {
     }
 
     public static void registerGuiHandler(Object mod, IGuiHandler handler) {
-        INSTANCE.registerGuiHandlerInstance(mod, handler);
+        // No-op compatibility stub.
     }
 
-    public static SimpleNetworkWrapper newSimpleChannel(String channelName) {
-        return INSTANCE.newSimpleChannelInstance(channelName);
-    }
-
-    public SimpleNetworkWrapper newSimpleChannelInstance(String channelName) {
+    /** インスタンスメソッド — NGTLib などが INSTANCE.newSimpleChannel(...) で呼ぶ */
+    public SimpleNetworkWrapper newSimpleChannel(String channelName) {
         return new SimpleNetworkWrapper(channelName);
     }
 
     public void registerGuiHandlerInstance(Object mod, IGuiHandler handler) {
-        // No-op compatibility stub. Legacy mods may register GUI handlers,
-        // but NeoForge の現代 GUI システムではこの互換レイヤーで直接処理しない。
+        // No-op compatibility stub.
     }
 }

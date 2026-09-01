@@ -89,6 +89,7 @@ public class McModAPIs {
         LEGACY_REGISTRY.registerLegacyMod(DummyLegacyModWithBlock.class, phase2Mod);
         // RegisterEvent のタイミングでキャッシュを現代レジストリに流し込む
         modEventBus.addListener(LEGACY_REGISTRY::onRegister);
+        LEGACY_REGISTRY.addRegistryCompletionListener(LEGACY_LIFECYCLE::onLegacyRegistryComplete);
 
         // ─── 追加: 旧Mod の自動検出とロード ───
         LegacyModDiscoverer legacyModDiscoverer = new LegacyModDiscoverer(LEGACY_LIFECYCLE, LEGACY_REGISTRY);

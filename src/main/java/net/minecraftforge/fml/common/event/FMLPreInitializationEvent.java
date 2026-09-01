@@ -11,20 +11,17 @@ import org.slf4j.LoggerFactory;
  * 互換レイヤーの LegacyModLifecycleBridge が現代の FMLCommonSetupEvent 発火時に
  * このインスタンスを生成し、1.12.2Modのメソッドへ渡す。
  */
-public class FMLPreInitializationEvent {
+public class FMLPreInitializationEvent extends FMLStateEvent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FMLPreInitializationEvent.class);
 
     // 1.12.2ではModの設定ファイルディレクトリを提供していた
     private final java.io.File configDir;
 
-    // 1.12.2ではModの情報コンテナを提供していた
-    private final String modId;
-
     private final ModMetadataStub metadata;
 
     public FMLPreInitializationEvent(String modId, java.io.File configDir, ModMetadataStub metadata) {
-        this.modId = modId;
+        super(modId);
         this.configDir = configDir;
         this.metadata = metadata != null ? metadata : new ModMetadataStub(modId);
         LOGGER.debug("[互換レイヤー] FMLPreInitializationEvent を生成: modId={}", modId);
@@ -42,7 +39,7 @@ public class FMLPreInitializationEvent {
      * 1.12.2 Modが自分のmodidを確認するために呼ぶことがある。
      */
     public String getModId() {
-        return modId;
+        return super.getModId();
     }
 
     /**

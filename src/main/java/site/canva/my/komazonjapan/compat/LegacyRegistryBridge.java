@@ -47,6 +47,8 @@ public class LegacyRegistryBridge {
 
     // スキャン対象の1.12.2Modエントリ
     private final List<LegacyModEntry> modEntries = new ArrayList<>();
+    private final List<Runnable> registryCompleteListeners = new ArrayList<>();
+    private boolean registryCompletionFired = false;
 
     // ─── 公開API ───
 
@@ -62,7 +64,7 @@ public class LegacyRegistryBridge {
         List<Method> blockRegMethods = new ArrayList<>();
         List<Method> itemRegMethods  = new ArrayList<>();
 
-        for (Method method : modClass.getDeclaredMethods()) {
+        for (Method method : modClass.getMethods()) {
             if (!method.isAnnotationPresent(net.minecraftforge.fml.common.eventhandler.SubscribeEvent.class)
                 && !method.isAnnotationPresent(net.minecraftforge.fml.common.Mod.EventHandler.class)) {
                 continue;
@@ -107,6 +109,7 @@ public class LegacyRegistryBridge {
             flushBlockCache(event);
             LOGGER.info("[互換レイヤー] Block登録フェーズ完了: {}件",
                     blockRegistry.getPendingEntries().size());
+            maybeFireRegistryCompletion(event);
         }
 
         // ── アイテム登録フェーズ ──
@@ -116,6 +119,7 @@ public class LegacyRegistryBridge {
             flushItemCache(event);
             LOGGER.info("[互換レイヤー] Item登録フェーズ完了: {}件",
                     itemRegistry.getPendingEntries().size());
+            maybeFireRegistryCompletion(event);
         }
     }
 
@@ -171,6 +175,31 @@ public class LegacyRegistryBridge {
             LOGGER.info("[互換レイヤー] Item を現代レジストリに登録: {}", rl);
         }
         itemRegistry.getPendingEntries().clear();
+    }
+
+    public void addRegistryCompletionListener(Runnable listener) {
+        if (listener != null) {
+            registryCompleteListeners.add(listener);
+        }
+    }
+
+    private void maybeFireRegistryCompletion(RegisterEvent event) {
+        if (registryCompletionFired) {
+            return;
+        }
+
+        boolean hasItemRegistrations = modEntries.stream().anyMatch(entry -> !entry.itemRegMethods.isEmpty());
+        if (event.getRegistryKey().equals(Registries.ITEM)
+                || (!hasItemRegistrations && event.getRegistryKey().equals(Registries.BLOCK))) {
+            registryCompletionFired = true;
+            registryCompleteListeners.forEach(listener -> {
+                try {
+                    listener.run();
+                } catch (Exception e) {
+                    LOGGER.error("[互換レイヤー] レジストリ完了リスナーの実行中にエラー", e);
+                }
+            });
+        }
     }
 
     private record LegacyModEntry(

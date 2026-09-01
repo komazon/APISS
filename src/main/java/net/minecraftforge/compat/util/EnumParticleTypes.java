@@ -1,0 +1,48 @@
+package net.minecraftforge.compat.util;
+
+/**
+ * 莠呈鋤繝ｬ繧､繝､繝ｼ: 1.12.2 縺ｮ EnumParticleTypes 縺ｮ繝繝溘・螳溯｣・・
+ */
+public enum EnumParticleTypes {
+    EXPLOSION,
+    EXPLOSION_HUGE,
+    EXPLOSION_LARGE,
+    FIREWORKS_SPARK,
+    WATER_BUBBLE,
+    WATER_SPLASH,
+    WATER_WAKE,
+    SUSPENDED,
+    SUSPENDED_DEPTH,
+    CRIT,
+    CRIT_MAGIC,
+    SMOKE_NORMAL,
+    SMOKE_LARGE,
+    SPELL,
+    SPELL_INSTANT,
+    SPELL_MOB,
+    SPELL_MOB_AMBIENT,
+    SPELL_WITCH,
+    DRIP_WATER,
+    DRIP_LAVA,
+    VILLAGER_ANGRY,
+    VILLAGER_HAPPY,
+    TOWN_AURA,
+    NOTE,
+    PORTAL,
+    ENCHANTMENT_TABLE,
+    FLAME,
+    LAVA,
+    FOOTSTEP,
+    CLOUD,
+    REDSTONE,
+    SNOWBALL,
+    SLIME,
+    HEART,
+    BARRIER,
+    ITEM_CRACK,
+    BLOCK_CRACK,
+    BLOCK_DUST,
+    WATER_DROP,
+    ITEM_TAKE,
+    TOTEM
+}

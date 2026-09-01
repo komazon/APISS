@@ -40,15 +40,90 @@ public class LegacyClassLoader extends URLClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         byte[] bytes = classBytes.get(name);
-        if (bytes == null) {
-            return super.findClass(name);
+        if (bytes != null) {
+            try {
+                byte[] transformed = LegacyClassTransformer.transform(bytes, this);
+                return defineClass(name, transformed, 0, transformed.length);
+            } catch (IOException e) {
+                throw new ClassNotFoundException("Failed to transform legacy class: " + name, e);
+            }
         }
 
         try {
-            byte[] transformed = LegacyClassTransformer.transform(bytes);
-            return defineClass(name, transformed, 0, transformed.length);
-        } catch (IOException e) {
-            throw new ClassNotFoundException("Failed to transform legacy class: " + name, e);
+            return super.findClass(name);
+        } catch (ClassNotFoundException e) {
+            if (isCompatStubCandidate(name)) {
+                byte[] stubBytes = generateCompatStub(name);
+                return defineClass(name, stubBytes, 0, stubBytes.length);
+            }
+            throw e;
+        }
+    }
+
+    private static boolean isCompatStubCandidate(String className) {
+        return className.startsWith("net.minecraftforge.compat.") || 
+               className.startsWith("net.minecraftforge.common.") || 
+               className.startsWith("net.minecraftforge.fml.");
+    }
+
+    private static byte[] generateCompatStub(String className) {
+        String internalName = className.replace('.', '/');
+        int access = Opcodes.ACC_PUBLIC;
+        boolean interfaceStub = isInterfaceName(className);
+        if (interfaceStub) {
+            access |= Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE;
+        }
+
+        String superName = "java/lang/Object";
+        if (!interfaceStub) {
+            superName = determineSuperClass(internalName);
+        }
+
+        ClassWriter writer = new ClassWriter(0);
+        writer.visit(Opcodes.V1_8, access, internalName, superName, 
+                interfaceStub ? null : "java/lang/Object", interfaceStub ? null : new String[0]);
+        writer.visitEnd();
+        return writer.toByteArray();
+    }
+
+    private static String determineSuperClass(String internalName) {
+        if (internalName.contains("EntityMob")) return "net/minecraftforge/compat/entity/EntityCreature";
+        if (internalName.contains("EntityCreature")) return "net/minecraftforge/compat/entity/LivingEntity";
+        if (internalName.contains("LivingEntity")) return "net/minecraftforge/compat/entity/Entity";
+        if (internalName.contains("Entity")) return "java/lang/Object";
+        return "java/lang/Object";
+    }
+
+    private static boolean isInterfaceName(String className) {
+        String simpleName = className.substring(className.lastIndexOf('.') + 1);
+        return simpleName.length() > 1 && simpleName.charAt(0) == 'I' && Character.isUpperCase(simpleName.charAt(1));
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> loaded = findLoadedClass(name);
+            if (loaded != null) {
+                return loaded;
+            }
+
+            if (classBytes.containsKey(name)) {
+                try {
+                    Class<?> clazz = findClass(name);
+                    if (resolve) {
+                        resolveClass(clazz);
+                    }
+                    return clazz;
+                } catch (ClassNotFoundException ignored) {
+                    // Fall through to parent delegation if transformation/load fails.
+                }
+            }
+
+            Class<?> parentClass = super.loadClass(name, false);
+            if (resolve) {
+                resolveClass(parentClass);
+            }
+            return parentClass;
         }
     }
 

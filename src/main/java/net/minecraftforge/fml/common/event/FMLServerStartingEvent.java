@@ -9,21 +9,20 @@ import org.slf4j.LoggerFactory;
  * 1.12.2 Modは @EventHandler の付いたメソッドでこのイベントを受け取り、
  * サーバー起動時の初期化を行う。
  */
-public class FMLServerStartingEvent {
+public class FMLServerStartingEvent extends FMLStateEvent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FMLServerStartingEvent.class);
 
-    private final String modId;
     private final Object server;
 
     public FMLServerStartingEvent(String modId, Object server) {
-        this.modId = modId;
+        super(modId);
         this.server = server;
         LOGGER.debug("[互換レイヤー] FMLServerStartingEvent を生成: modId={}", modId);
     }
 
     public String getModId() {
-        return modId;
+        return super.getModId();
     }
 
     public Object getServer() {

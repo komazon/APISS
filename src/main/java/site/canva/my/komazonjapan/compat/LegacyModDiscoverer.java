@@ -301,6 +301,9 @@ public class LegacyModDiscoverer {
             Constructor<?> constructor = modClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
+        } catch (NoSuchMethodException e) {
+            LOGGER.debug("[互換レイヤー] 旧Modクラスにデフォルトコンストラクタが存在しません: {}。静的 @Mod として扱います", modClass.getName());
+            return null;
         } catch (Exception e) {
             LOGGER.error("[互換レイヤー] 旧Modクラスのインスタンス生成に失敗: {}", modClass.getName(), e);
             return null;

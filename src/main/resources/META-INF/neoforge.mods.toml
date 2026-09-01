@@ -65,7 +65,8 @@ Example mod description.
     # Optional field describing why the dependency is required or why it is incompatible
     # reason="..."
     # The version range of the dependency
-    versionRange="[${neo_version},)" #mandatory
+    # 26.1.x (26.1.2.64-beta 以降) および 26.2.x をサポート。26.3 未満まで許容。
+    versionRange="[26.1.2.64-beta,26.3)" #mandatory
     # An ordering relationship for the dependency.
     # BEFORE - This mod is loaded BEFORE the dependency
     # AFTER - This mod is loaded AFTER the dependency
@@ -77,7 +78,7 @@ Example mod description.
 [[dependencies.${mod_id}]]
     modId="minecraft"
     type="required"
-    # This version range declares a minimum of the current minecraft version up to but not including the next major version
+    # 26.1.2 以降 26.3 未満（= 26.1.x および 26.2.x）をサポート
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"

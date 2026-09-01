@@ -8,97 +8,88 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 互換レイヤー: 1.12.2の Block クラスのブリッジ実装。
- *
- * 1.12.2では:
+ * 莠呈鋤繝ｬ繧､繝､繝ｼ: 1.12.2縺ｮ Block 繧ｯ繝ｩ繧ｹ縺ｮ繝悶Μ繝・ず螳溯｣・・ *
+ * 1.12.2縺ｧ縺ｯ:
  *   new Block(Material.ROCK)
  *   block.setRegistryName("mymod", "my_block")
  *   block.setUnlocalizedName("my_block")
  *
- * 現代では BlockBehaviour.Properties.of() のビルダーパターンが必要。
- * このクラスが旧スタイルのコンストラクタ・メソッドを受け取り、
- * 内部で現代の Block として動作するよう変換する。
- *
- * 設計書「実装手順 4: コンストラクタのインターセプト」に相当。
- */
+ * 迴ｾ莉｣縺ｧ縺ｯ BlockBehaviour.Properties.of() 縺ｮ繝薙Ν繝繝ｼ繝代ち繝ｼ繝ｳ縺悟ｿ・ｦ√・ * 縺薙・繧ｯ繝ｩ繧ｹ縺梧立繧ｹ繧ｿ繧､繝ｫ縺ｮ繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ繝ｻ繝｡繧ｽ繝・ラ繧貞女縺大叙繧翫・ * 蜀・Κ縺ｧ迴ｾ莉｣縺ｮ Block 縺ｨ縺励※蜍穂ｽ懊☆繧九ｈ縺・､画鋤縺吶ｋ縲・ *
+ * 險ｭ險域嶌縲悟ｮ溯｣・焔鬆・4: 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ縺ｮ繧､繝ｳ繧ｿ繝ｼ繧ｻ繝励ヨ縲阪↓逶ｸ蠖薙・ */
 public class LegacyBlock extends Block {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LegacyBlock.class);
 
     /**
-     * IForgeRegistryが登録名を取り出すために参照するフィールド。
-     * setRegistryName() で設定される。
-     */
+     * IForgeRegistry縺檎匳骭ｲ蜷阪ｒ蜿悶ｊ蜃ｺ縺吶◆繧√↓蜿ら・縺吶ｋ繝輔ぅ繝ｼ繝ｫ繝峨・     * setRegistryName() 縺ｧ險ｭ螳壹＆繧後ｋ縲・     */
     String _legacyRegistryName = null;
 
-    /** 1.12.2の setUnlocalizedName() で設定される翻訳キー */
+    /** 1.12.2縺ｮ setUnlocalizedName() 縺ｧ險ｭ螳壹＆繧後ｋ鄙ｻ險ｳ繧ｭ繝ｼ */
     String _unlocalizedName = null;
 
-    // ─── 1.12.2スタイルのコンストラクタ群 ───
+    // 笏笏笏 1.12.2繧ｹ繧ｿ繧､繝ｫ縺ｮ繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ鄒､ 笏笏笏
 
     /**
-     * 最も一般的な 1.12.2 コンストラクタ: Material を受け取る。
-     * 互換レイヤーで Material → MapColor にマッピングして現代の Properties を生成。
-     */
+     * 譛繧ゆｸ闊ｬ逧・↑ 1.12.2 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ: Material 繧貞女縺大叙繧九・     * 莠呈鋤繝ｬ繧､繝､繝ｼ縺ｧ Material 竊・MapColor 縺ｫ繝槭ャ繝斐Φ繧ｰ縺励※迴ｾ莉｣縺ｮ Properties 繧堤函謌舌・     */
     public LegacyBlock(LegacyMaterial material) {
         super(mapMaterialToProperties(material));
-        LOGGER.debug("[互換レイヤー] LegacyBlock 生成: material={}", material);
+        LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] LegacyBlock 逕滓・: material={}", material);
     }
 
     /**
-     * デフォルトコンストラクタ（Material.ROCK相当）。
-     * 一部のModは引数なしサブクラスコンストラクタを持つ。
-     */
+     * 繝・ヵ繧ｩ繝ｫ繝医さ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ・・aterial.ROCK逶ｸ蠖難ｼ峨・     * 荳驛ｨ縺ｮMod縺ｯ蠑墓焚縺ｪ縺励し繝悶け繝ｩ繧ｹ繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ繧呈戟縺､縲・     */
     public LegacyBlock() {
         this(LegacyMaterial.ROCK);
     }
 
-    // ─── 1.12.2のメソッドチェーン ───
+    // 笏笏笏 1.12.2縺ｮ繝｡繧ｽ繝・ラ繝√ぉ繝ｼ繝ｳ 笏笏笏
 
     /**
-     * 1.12.2の block.setRegistryName("mymod", "my_block") に相当。
-     * IForgeRegistryが登録名の特定に使う _legacyRegistryName に保存する。
-     *
-     * @return this (メソッドチェーン用)
+     * 1.12.2縺ｮ block.setRegistryName("mymod", "my_block") 縺ｫ逶ｸ蠖薙・     * IForgeRegistry縺檎匳骭ｲ蜷阪・迚ｹ螳壹↓菴ｿ縺・_legacyRegistryName 縺ｫ菫晏ｭ倥☆繧九・     *
+     * @return this (繝｡繧ｽ繝・ラ繝√ぉ繝ｼ繝ｳ逕ｨ)
      */
     public LegacyBlock setRegistryName(String domain, String path) {
         this._legacyRegistryName = domain + ":" + path;
-        LOGGER.debug("[互換レイヤー] RegistryName 設定: {}", this._legacyRegistryName);
+        LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] RegistryName 險ｭ螳・ {}", this._legacyRegistryName);
         return this;
     }
 
     /**
-     * 1.12.2の block.setRegistryName("mymod:my_block") に相当。
-     */
+     * 1.12.2縺ｮ block.setRegistryName("mymod:my_block") 縺ｫ逶ｸ蠖薙・     */
     public LegacyBlock setRegistryName(String registryName) {
         this._legacyRegistryName = registryName;
         return this;
     }
 
     /**
-     * 1.12.2の block.setUnlocalizedName("my_block") に相当。
-     * 現代では翻訳キーは自動生成されるが、互換性のためフィールドに保存する。
-     *
-     * @return this (メソッドチェーン用)
+     * 1.12.2縺ｮ block.setUnlocalizedName("my_block") 縺ｫ逶ｸ蠖薙・     * 迴ｾ莉｣縺ｧ縺ｯ鄙ｻ險ｳ繧ｭ繝ｼ縺ｯ閾ｪ蜍慕函謌舌＆繧後ｋ縺後∽ｺ呈鋤諤ｧ縺ｮ縺溘ａ繝輔ぅ繝ｼ繝ｫ繝峨↓菫晏ｭ倥☆繧九・     *
+     * @return this (繝｡繧ｽ繝・ラ繝√ぉ繝ｼ繝ｳ逕ｨ)
      */
     public LegacyBlock setUnlocalizedName(String name) {
         this._unlocalizedName = name;
         return this;
     }
 
+    public LegacyBlock setHardness(float hardness) {
+        LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] LegacyBlock setHardness({})", hardness);
+        return this;
+    }
+
+    public LegacyBlock setResistance(float resistance) {
+        LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] LegacyBlock setResistance({})", resistance);
+        return this;
+    }
+
     /**
-     * 登録名を返す。1.12.2Modが確認のために呼ぶことがある。
-     */
+     * 逋ｻ骭ｲ蜷阪ｒ霑斐☆縲・.12.2Mod縺檎｢ｺ隱阪・縺溘ａ縺ｫ蜻ｼ縺ｶ縺薙→縺後≠繧九・     */
     public String getRegistryName() {
         return _legacyRegistryName;
     }
 
-    // ─── Material → BlockBehaviour.Properties 変換 ───
+    // 笏笏笏 Material 竊・BlockBehaviour.Properties 螟画鋤 笏笏笏
 
     /**
-     * 1.12.2の Material を現代の BlockBehaviour.Properties に変換する。
-     * 設計書「第4フェーズ：BlockとItemのプロパティ変換」に相当。
-     */
+     * 1.12.2縺ｮ Material 繧堤樟莉｣縺ｮ BlockBehaviour.Properties 縺ｫ螟画鋤縺吶ｋ縲・     * 險ｭ險域嶌縲檎ｬｬ4繝輔ぉ繝ｼ繧ｺ・咤lock縺ｨItem縺ｮ繝励Ο繝代ユ繧｣螟画鋤縲阪↓逶ｸ蠖薙・     */
     private static BlockBehaviour.Properties mapMaterialToProperties(LegacyMaterial material) {
         return switch (material) {
             case ROCK       -> BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
