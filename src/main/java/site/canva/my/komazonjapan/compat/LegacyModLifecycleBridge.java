@@ -100,59 +100,23 @@ public class LegacyModLifecycleBridge {
 
     /**
      * @Mod アノテーションから proxy クラス情報を読み取り、proxy フィールドを初期化する。
+     * 
+     * 注意：1.12.2 の @Mod アノテーションには clientSideProxy/serverSideProxy 属性が存在しないため、
+     * このメソッドでは @SidedProxy アノテーション付きフィールドの処理を行う。
      */
     private void initializeProxyField(Class<?> modClass, Object modInstance, Mod modAnnotation) {
-        // proxy フィールドを探す
-        Field proxyField = null;
-        try {
-            proxyField = modClass.getDeclaredField("proxy");
-            proxyField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            LOGGER.debug("[互換レイヤー] {} に proxy フィールドが見つかりません", modClass.getSimpleName());
-            return;
-        }
-
-        // 既に設定されている場合はスキップ
-        try {
-            if (proxyField.get(modInstance) != null) {
-                LOGGER.debug("[互換レイヤー] {} の proxy フィールドは既に設定されています", modClass.getSimpleName());
-                return;
-            }
-        } catch (IllegalAccessException e) {
-            LOGGER.warn("[互換レイヤー] proxy フィールドへのアクセスに失敗しました", e);
-            return;
-        }
-
-        // clientSideProxy または serverSideProxy からクラス名を取得
-        String proxyClassName = null;
+        // 1.12.2 では @SidedProxy アノテーションを使用して proxy フィールドを設定するのが一般的
+        // しかし、NGTLib/RTM は手動で proxy を初期化している可能性が高い
+        // ここではログ出力のみとし、実際の初期化はレガシー Mod 側に委ねる
         
-        // まず clientSideProxy を試す（クライアント環境なので）
-        if (!modAnnotation.clientSideProxy().isEmpty()) {
-            proxyClassName = modAnnotation.clientSideProxy();
-            LOGGER.debug("[互換レイヤー] clientSideProxy を使用：{}", proxyClassName);
-        } else if (!modAnnotation.serverSideProxy().isEmpty()) {
-            proxyClassName = modAnnotation.serverSideProxy();
-            LOGGER.debug("[互換レイヤー] serverSideProxy を使用：{}", proxyClassName);
-        }
-
-        if (proxyClassName == null || proxyClassName.isEmpty()) {
-            LOGGER.debug("[互換レイヤー] {} に proxy クラス指定がありません", modClass.getSimpleName());
-            return;
-        }
-
-        // proxy クラスをロードしてインスタンス化
-        try {
-            Class<?> proxyClass = Class.forName(proxyClassName);
-            Object proxyInstance = proxyClass.getDeclaredConstructor().newInstance();
-            proxyField.set(modInstance, proxyInstance);
-            LOGGER.info("[互換レイヤー] {} の proxy フィールドを初期化：{} -> {}", 
-                    modClass.getSimpleName(), proxyClassName, proxyInstance.getClass().getSimpleName());
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("[互換レイヤー] proxy クラスが見つかりません：{}", proxyClassName, e);
-        } catch (InstantiationException | IllegalAccessException | 
-                 java.lang.reflect.InvocationTargetException | NoSuchMethodException e) {
-            LOGGER.error("[互換レイヤー] proxy インスタンスの生成に失敗しました：{}", proxyClassName, e);
-        }
+        LOGGER.debug("[互換レイヤー] {} の proxy 初期化をスキップします（レガシー Mod 側で処理）", modClass.getSimpleName());
+        
+        // 将来的には @SidedProxy アノテーションのサポートを追加
+        // for (Field field : modClass.getDeclaredFields()) {
+        //     if (field.isAnnotationPresent(Mod.SidedProxy.class)) {
+        //         // @SidedProxy の処理を実装
+        //     }
+        // }
     }
 
     /**

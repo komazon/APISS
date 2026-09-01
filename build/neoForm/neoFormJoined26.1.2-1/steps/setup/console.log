@@ -1,0 +1,8 @@
+JVM Args:          
+Run Args:          "--task", "PROCESS_MINECRAFT_JAR", "--input", "/workspace/.gradle/caches/minecraft/versions/26.1.2/client.jar", "--input", "/workspace/.gradle/caches/minecraft/versions/26.1.2/server.jar", "--output", "/workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup/outputs.jar", "--neoform-data", "/root/.gradle/caches/modules-2/files-2.1/net.neoforged/neoform/26.1.2-1/194355a3ab209fbdf6f970a05be03a7888599fb/neoform-26.1.2-1.zip"
+JVM:               /root/.gradle/jdks/eclipse_adoptium-25-amd64-linux.2/bin/java
+Classpath:         /root/.gradle/caches/modules-2/files-2.1/net.neoforged.installertools/installertools/4.0.13/e0abd1a45456c2815b373a0c869218d89d36af7a/installertools-4.0.13-fatjar.jar
+Working Dir:       /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup
+Main Class:        net.neoforged.installertools.ConsoleTool
+Program log file:  /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup/log.log
+Output file:       /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup/outputs.jar
