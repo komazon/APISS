@@ -33,7 +33,7 @@ public class LegacyBlock extends Block {
      * 譛繧ゆｸ闊ｬ逧・↑ 1.12.2 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ: Material 繧貞女縺大叙繧九・     * 莠呈鋤繝ｬ繧､繝､繝ｼ縺ｧ Material 竊・MapColor 縺ｫ繝槭ャ繝斐Φ繧ｰ縺励※迴ｾ莉｣縺ｮ Properties 繧堤函謌舌・     */
     public LegacyBlock(LegacyMaterial material) {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(1.5f, 6.0f));
-        this._legacyRegistryName = null; // explicitly initialize to avoid NPE
+        this._legacyRegistryName = null;
         this._unlocalizedName = null;
         LOGGER.debug("[莠呈鋤繝ｬ繧､繝､繝ｼ] LegacyBlock 逕滓・: material={}", material);
     }
@@ -42,6 +42,18 @@ public class LegacyBlock extends Block {
      * 繝・ヵ繧ｩ繝ｫ繝医さ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ・・aterial.ROCK逶ｸ蠖難ｼ峨・     * 荳驛ｨ縺ｮMod縺ｯ蠑墓焚縺ｪ縺励し繝悶け繝ｩ繧ｹ繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ繧呈戟縺､縲・     */
     public LegacyBlock() {
         this(LegacyMaterial.ROCK);
+    }
+
+    // 笏笏笏 1.12.2 互換：ブロック ID を直接設定するコンストラクタ（Phase 2 修正用）
+    /**
+     * 1.12.2 互換：ブロック ID と Material を受け取るコンストラクタ。
+     * 古い Mod では "mymod:my_block" のような文字列 ID を直接渡すことがある。
+     */
+    public LegacyBlock(String blockId, LegacyMaterial material) {
+        this(material);
+        if (blockId != null && !blockId.isEmpty()) {
+            setRegistryName(blockId);
+        }
     }
 
     // 笏笏笏 1.12.2縺ｮ繝｡繧ｽ繝・ラ繝√ぉ繝ｼ繝ｳ 笏笏笏
