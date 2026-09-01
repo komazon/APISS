@@ -8,7 +8,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.common.NeoForge;
 
 // BUG FIX: クラス名を "121APIClient" → "McModAPIsClient" に変更。
 @Mod(value = McModAPIs.MODID, dist = Dist.CLIENT)
@@ -16,7 +15,7 @@ public class McModAPIsClient {
 
     public McModAPIsClient(ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        NeoForge.EVENT_BUS.register(this);
+        container.getEventBus().register(this);
     }
 
     @SubscribeEvent

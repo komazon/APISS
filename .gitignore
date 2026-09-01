@@ -1,40 +1,35 @@
-### Gradle ###
-.gradle
+```
+# Compiled and build artifacts
+*.class
+*.o
+*.obj
+*.out
 build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/**/build/
+target/
 
-### IntelliJ IDEA ###
+# Dependencies
+.gradle/
+lib/
+libs/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
 .idea/
-*.iws
 *.iml
 *.ipr
-out/
-!**/src/**/out/
+*.iws
 
-.run/
-
-### Eclipse ###
-.apt_generated
-.classpath
-.eclipse/
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/**/bin/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+# System files
 .DS_Store
-
-### Minecraft Modding ###
-run/
-!**/src/**/run/
-**/src/generated/**/.cache/
-repo/
-!**/src/**/repo/
+Thumbs.db
+```
