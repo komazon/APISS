@@ -1,6 +1,5 @@
 package net.minecraftforge.compat.client;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.MinecraftServer;

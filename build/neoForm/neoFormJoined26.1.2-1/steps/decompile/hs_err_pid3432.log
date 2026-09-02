@@ -1,0 +1,43 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 610271232 bytes. Error detail: committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   This process has exceeded the maximum number of memory mappings (check below
+#     for `/proc/sys/vm/max_map_count` and `Total number of mappings`)
+#   This process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+#   JVM is running with Zero Based Compressed Oops mode in which the Java heap is
+#     placed in the first 32GB address space. The Java Heap base address is the
+#     maximum limit for the native heap growth. Please use -XX:HeapBaseMinAddress
+#     to set the Java Heap base and to place the Java Heap above 32GB virtual address.
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:3000), pid=3432, tid=3443
+#
+# JRE version: OpenJDK Runtime Environment Temurin-25.0.4.1+1 (25.0.4.1+1) (build 25.0.4.1+1-LTS)
+# Java VM: OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (25.0.4.1+1-LTS, mixed mode, sharing, tiered, compressed oops, compressed class ptrs, g1 gc, linux-amd64)
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Xmx4g -Dfile.encoding=UTF-8 -Duser.country -Duser.language=en -Duser.variant org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler -log=error --decompile-inner --remove-bridge --decompile-generics --ascii-strings --remove-synthetic --include-classpath --ignore-invalid-bytecode --bytecode-source-mapping --dump-code-lines --indent-string=     -cfg=/workspace/build/neoForm/neoFormJoined26.1.2-1/steps/listLibraries/libraries.txt /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/setup/outputs.jar /workspace/build/neoForm/neoFormJoined26.1.2-1/steps/decompile/outputs.jar
+
+Host: Intel(R) Xeon(R) Processor @ 2.50GHz, 2 cores, 2G, Debian GNU/Linux 12 (bookworm)
+Time: Wed Sep  2 06:55:47 2026 UTC elapsed time: 126.054526 seconds (0d 0h 2m 6s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007faf140ade30):  VMThread "VM Thread"          [id=3443, stack(0x00007faef806d000,0x00007faef816d000) (1024K)]
+
+Stack: [0x00007faef806d000,0x00007faef816d000],  sp=0x00007faef816ab30,  free space=1014k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x129e155]
