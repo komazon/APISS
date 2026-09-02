@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Timer;
+import net.minecraftforge.compat.util.Timer;
 
 /**
  * 1.12.2 用 Minecraft クラスの互換性ラッパー
@@ -29,7 +29,7 @@ public class Minecraft {
      */
     public static Minecraft func_71410_x() {
         if (instance == null) {
-            instance = new Minecraft(Minecraft.getInstance());
+            instance = new Minecraft(net.minecraft.client.Minecraft.getInstance());
         }
         return instance;
     }
@@ -74,10 +74,11 @@ public class Minecraft {
      * @return Timer の取得（1.12.2 風）
      * 
      * 1.12.2: Minecraft.field_71428_T
-     * Modern: Minecraft.getInstance().timer
+     * Modern: 存在しないためダミーの Timer を返す
      */
     public Timer func_71411_J() {
-        return vanilla.timer;
+        // 現代の Minecraft には timer フィールドが存在しないため、ダミーを返す
+        return new Timer(0.0F);
     }
     
     /**

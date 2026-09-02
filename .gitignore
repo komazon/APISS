@@ -1,23 +1,11 @@
 ```
 # Gradle
 .gradle/
+!gradle.properties
+
+# Build artifacts
 build/
 
 # Logs
 *.log
-hs_err_pid*.log
-
-# Java
-*.class
-*.jar
-*.war
-*.ear
-
-# Dependencies
-lib/
-libs/
-
-# Temp files
-*.tmp
-*.temp
 ```
