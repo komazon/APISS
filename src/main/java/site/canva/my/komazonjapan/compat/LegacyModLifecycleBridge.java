@@ -123,16 +123,44 @@ public class LegacyModLifecycleBridge {
             return;
         }
 
-        // clientSideProxy または serverSideProxy からクラス名を取得
+        // 1.12.2 の @Mod アノテーションには clientSideProxy/serverSideProxy は存在しない
+        // proxyFactory 属性を使用するが、これは SidedProxy を使用した古いパターン
+        // 実際に必要なのは、各サイドのプロキシクラスを直接インスタンス化すること
+        
+        // クライアント環境なので、クライアント側のプロキシを優先的に探す
+        // プロキシクラスの命名規則: CommonProxy -> ClientProxy
         String proxyClassName = null;
         
-        // まず clientSideProxy を試す（クライアント環境なので）
-        if (!modAnnotation.clientSideProxy().isEmpty()) {
-            proxyClassName = modAnnotation.clientSideProxy();
-            LOGGER.debug("[互換レイヤー] clientSideProxy を使用：{}", proxyClassName);
-        } else if (!modAnnotation.serverSideProxy().isEmpty()) {
-            proxyClassName = modAnnotation.serverSideProxy();
-            LOGGER.debug("[互換レイヤー] serverSideProxy を使用：{}", proxyClassName);
+        // まず、modId からパッケージ名を推測して ClientProxy を探す
+        String modPackage = modClass.getPackage().getName();
+        String[] possibleProxyNames = {
+            modPackage + ".ClientProxy",
+            modPackage + ".client.ClientProxy",
+            modPackage + ".proxy.ClientProxy",
+            modPackage + ".CommonProxy$Client", // インナークラスの場合
+        };
+        
+        for (String candidate : possibleProxyNames) {
+            try {
+                Class<?> proxyClass = Class.forName(candidate, false, modClass.getClassLoader());
+                proxyClassName = candidate;
+                LOGGER.debug("[互換レイヤー] 候補の proxy クラスを発見：{}", proxyClassName);
+                break;
+            } catch (ClassNotFoundException e) {
+                // 次の候補を試す
+            }
+        }
+        
+        // 見つからなければ CommonProxy を試す
+        if (proxyClassName == null) {
+            String commonProxyName = modPackage + ".CommonProxy";
+            try {
+                Class.forName(commonProxyName, false, modClass.getClassLoader());
+                proxyClassName = commonProxyName;
+                LOGGER.debug("[互換レイヤー] CommonProxy を使用：{}", proxyClassName);
+            } catch (ClassNotFoundException e) {
+                // CommonProxy も存在しない
+            }
         }
 
         if (proxyClassName == null || proxyClassName.isEmpty()) {
