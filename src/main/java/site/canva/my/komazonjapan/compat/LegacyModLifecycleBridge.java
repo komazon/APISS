@@ -100,23 +100,70 @@ public class LegacyModLifecycleBridge {
 
     /**
      * @Mod アノテーションから proxy クラス情報を読み取り、proxy フィールドを初期化する。
-     * 
-     * 注意：1.12.2 の @Mod アノテーションには clientSideProxy/serverSideProxy 属性が存在しないため、
-     * このメソッドでは @SidedProxy アノテーション付きフィールドの処理を行う。
      */
     private void initializeProxyField(Class<?> modClass, Object modInstance, Mod modAnnotation) {
-        // 1.12.2 では @SidedProxy アノテーションを使用して proxy フィールドを設定するのが一般的
-        // しかし、NGTLib/RTM は手動で proxy を初期化している可能性が高い
-        // ここではログ出力のみとし、実際の初期化はレガシー Mod 側に委ねる
+        // proxy フィールドを探す
+        Field proxyField = null;
+        try {
+            proxyField = modClass.getDeclaredField("proxy");
+            proxyField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            LOGGER.debug("[互換レイヤー] {} に proxy フィールドが見つかりません", modClass.getSimpleName());
+            return;
+        }
+
+        // 既に設定されている場合はスキップ
+        try {
+            if (proxyField.get(modInstance) != null) {
+                LOGGER.debug("[互換レイヤー] {} の proxy フィールドは既に設定されています", modClass.getSimpleName());
+                return;
+            }
+        } catch (IllegalAccessException e) {
+            LOGGER.warn("[互換レイヤー] proxy フィールドへのアクセスに失敗しました", e);
+            return;
+        }
+
+        // clientSideProxy または serverSideProxy からクラス名を取得
+        String proxyClassName = null;
         
-        LOGGER.debug("[互換レイヤー] {} の proxy 初期化をスキップします（レガシー Mod 側で処理）", modClass.getSimpleName());
-        
-        // 将来的には @SidedProxy アノテーションのサポートを追加
-        // for (Field field : modClass.getDeclaredFields()) {
-        //     if (field.isAnnotationPresent(Mod.SidedProxy.class)) {
-        //         // @SidedProxy の処理を実装
-        //     }
-        // }
+        // まず clientSideProxy を試す（クライアント環境なので）
+        if (!modAnnotation.clientSideProxy().isEmpty()) {
+            proxyClassName = modAnnotation.clientSideProxy();
+            LOGGER.debug("[互換レイヤー] clientSideProxy を使用：{}", proxyClassName);
+        } else if (!modAnnotation.serverSideProxy().isEmpty()) {
+            proxyClassName = modAnnotation.serverSideProxy();
+            LOGGER.debug("[互換レイヤー] serverSideProxy を使用：{}", proxyClassName);
+        }
+
+        if (proxyClassName == null || proxyClassName.isEmpty()) {
+            LOGGER.info("[互換レイヤー] {} に proxy クラス指定がありません。proxy フィールドは null のままです。", modClass.getSimpleName());
+            return;
+        }
+
+        // proxy クラスをロードしてインスタンス化
+        try {
+            LOGGER.info("[互換レイヤー] {} の proxy クラスをロード中：{}", modClass.getSimpleName(), proxyClassName);
+            Class<?> proxyClass = Class.forName(proxyClassName, true, modClass.getClassLoader());
+            LOGGER.info("[互換レイヤー] {} の proxy クラスをロード完了：{}", modClass.getSimpleName(), proxyClass.getName());
+            Object proxyInstance = proxyClass.getDeclaredConstructor().newInstance();
+            proxyField.set(modInstance, proxyInstance);
+            LOGGER.info("[互換レイヤー] {} の proxy フィールドを初期化：{} -> {}", 
+                    modClass.getSimpleName(), proxyClassName, proxyInstance.getClass().getSimpleName());
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("[互換レイヤー] proxy クラスが見つかりません：{} (ClassLoader: {})", proxyClassName, modClass.getClassLoader(), e);
+        } catch (InstantiationException e) {
+            LOGGER.error("[互換レイヤー] proxy インスタンスの生成に失敗しました（インスタンス化エラー）：{}", proxyClassName, e);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("[互換レイヤー] proxy インスタンスの生成に失敗しました（アクセスエラー）：{}", proxyClassName, e);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            LOGGER.error("[互換レイヤー] proxy インスタンスの生成に失敗しました（コンストラクタエラー）：{}", proxyClassName, e.getCause());
+        } catch (NoSuchMethodException e) {
+            LOGGER.error("[互換レイヤー] proxy クラスにデフォルトコンストラクタが見つかりません：{}", proxyClassName, e);
+        } catch (ExceptionInInitializerError e) {
+            LOGGER.error("[互換レイヤー] proxy クラスの初期化中にエラーが発生しました：{}", proxyClassName, e.getCause());
+        } catch (NoClassDefFoundError e) {
+            LOGGER.error("[互換レイヤー] proxy クラスまたはその依存クラスが見つかりません：{} - {}", proxyClassName, e.getMessage());
+        }
     }
 
     /**

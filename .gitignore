@@ -1,1 +1,45 @@
-(src/main/java/site/canva/my/komazonjapan/compat/LegacyModLifecycleBridge.java)
+```
+# Compiled and build artifacts
+*.class
+*.o
+*.obj
+*.out
+build/
+target/
+
+# Dependencies
+.gradle/
+libs/
+lib/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+```
