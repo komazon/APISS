@@ -81,16 +81,20 @@ public class IForgeRegistry<T> {
      * 1.12.2 の setRegistryName() 相当のフィールドをリフレクションで探す。
      */
     private String getRegistryName(T entry) {
-        try {
-            // LegacyBlock / LegacyItem が持つ内部フィールドを参照
-            var field = entry.getClass().getDeclaredField("_legacyRegistryName");
-            field.setAccessible(true);
-            return (String) field.get(entry);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // フィールドがない場合はクラス名から推測（フォールバック）
-            LOGGER.warn("[互換レイヤー] _legacyRegistryName フィールドが見つかりません：{}。クラス名で代替します。",
-                    entry.getClass().getSimpleName());
-            return entry.getClass().getSimpleName().toLowerCase();
+        Class<?> clazz = entry.getClass();
+        while (clazz != null) {
+            try {
+                var field = clazz.getDeclaredField("_legacyRegistryName");
+                field.setAccessible(true);
+                return (String) field.get(entry);
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass(); // スーパークラスへ
+            } catch (IllegalAccessException e) {
+                break;
+            }
         }
+        LOGGER.warn("[互換レイヤー] _legacyRegistryName が見つかりません：{}。クラス名で代替します。",
+                entry.getClass().getSimpleName());
+        return entry.getClass().getSimpleName().toLowerCase();
     }
 }
