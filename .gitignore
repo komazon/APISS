@@ -1,38 +1,21 @@
+```
 # Compiled and build artifacts
 *.class
 *.o
 *.obj
-*.exe
-*.dll
-*.so
-*.a
 *.out
-*.pyc
-__pycache__/
+build/
+target/
 
 # Dependencies
-node_modules/
-venv/
-.venv/
-target/
 .gradle/
-.mypy_cache/
-.pytest_cache/
-.julia/
-zig*/
-julia-*/
-
-# Build directories
-dist/
-build/
-coverage/
-htmlcov/
+libs/
+lib/
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-*.swo
 
 # Environment
 .env
@@ -45,31 +28,18 @@ htmlcov/
 *.swp
 *.swo
 
-# System files
+# OS specific
 .DS_Store
 Thumbs.db
-.Coverage
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# MyPy
+.mypy_cache/
+
+# PyTest
+.pytest_cache/
+```
