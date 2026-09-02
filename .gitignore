@@ -1,1 +1,23 @@
-Nothing should be ignored since only a Java source file was modified and no build artifacts, dependencies, or temporary files were detected in the changes.
+```
+# Gradle
+.gradle/
+build/
+
+# Logs
+*.log
+hs_err_pid*.log
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Dependencies
+lib/
+libs/
+
+# Temp files
+*.tmp
+*.temp
+```
