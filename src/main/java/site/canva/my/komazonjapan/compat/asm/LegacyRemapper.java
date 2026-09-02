@@ -103,6 +103,7 @@ public class LegacyRemapper extends Remapper {
         TYPE_MAP.put("net/minecraft/entity/player/EntityPlayer",    "net/minecraft/world/entity/player/Player");
         TYPE_MAP.put("net/minecraft/entity/player/EntityPlayerMP",  "net/minecraft/server/level/ServerPlayer");
         TYPE_MAP.put("net/minecraft/client/entity/EntityPlayerSP",  "net/minecraft/client/player/LocalPlayer");
+        TYPE_MAP.put("net/minecraft/client/Minecraft",              "net/minecraftforge/compat/client/Minecraft");
         TYPE_MAP.put("net/minecraft/entity/EntityLivingBase",       "net/minecraft/world/entity/LivingEntity");
         TYPE_MAP.put("net/minecraft/entity/EntityCreature",         "net/minecraft/world/entity/PathfinderMob");
         TYPE_MAP.put("net/minecraft/entity/EntityAgeable",          "net/minecraft/world/entity/AgeableMob");
@@ -534,6 +535,12 @@ public class LegacyRemapper extends Remapper {
         METHOD_NAME_ONLY_MAP.put("func_70105_a", "setSize");          // setSize(width, height)
         METHOD_NAME_ONLY_MAP.put("func_96094_a", "setCustomNameTag"); // setCustomNameTag
         METHOD_NAME_ONLY_MAP.put("func_95999_t", "getCustomNameTag"); // getCustomNameTag
+
+        // Minecraft 系 (Client)
+        METHOD_NAME_ONLY_MAP.put("func_71410_x", "func_71410_x");     // getInstance() → 互換ラッパーの static メソッド
+        METHOD_NAME_ONLY_MAP.put("func_71401_C", "func_71401_C");     // level の取得
+        METHOD_NAME_ONLY_MAP.put("func_175606_aa", "func_175606_aa"); // player の取得
+        METHOD_NAME_ONLY_MAP.put("func_71411_J", "func_71411_J");     // timer の取得
 
         // Item 系
         METHOD_NAME_ONLY_MAP.put("func_77656_e", "setMaxDamage");     // setMaxDamage(int)
