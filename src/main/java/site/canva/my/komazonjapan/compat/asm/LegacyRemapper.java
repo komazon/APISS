@@ -214,7 +214,6 @@ public class LegacyRemapper extends Remapper {
         TYPE_MAP.put("net/minecraft/item", "net/minecraftforge/compat/item");
         TYPE_MAP.put("net/minecraft/block/material", "net/minecraftforge/compat/block/material");
         TYPE_MAP.put("net/minecraft/world/chunk", "net/minecraftforge/compat/world/chunk");
-        TYPE_MAP.put("net/minecraft/util/ResourceLocation", "net/minecraftforge/compat/util/ResourceLocation");
         TYPE_MAP.put("net/minecraft/util/text", "net/minecraftforge/compat/util/text");
         TYPE_MAP.put("net/minecraft/client/renderer/GlStateManager", "net/minecraftforge/compat/renderer/GlStateManager");
         TYPE_MAP.put("net/minecraft/client/renderer/Tessellator", "net/minecraftforge/compat/renderer/Tessellator");

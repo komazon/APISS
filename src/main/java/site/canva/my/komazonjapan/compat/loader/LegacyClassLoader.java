@@ -80,8 +80,8 @@ public class LegacyClassLoader extends URLClassLoader {
         }
 
         ClassWriter writer = new ClassWriter(0);
-        writer.visit(Opcodes.V1_8, access, internalName, superName, 
-                interfaceStub ? null : "java/lang/Object", interfaceStub ? null : new String[0]);
+        writer.visit(Opcodes.V21, access, internalName, null, 
+                interfaceStub ? "java/lang/Object" : superName, interfaceStub ? null : new String[0]);
         writer.visitEnd();
         return writer.toByteArray();
     }

@@ -91,17 +91,10 @@ public class FMLPreInitializationEvent extends FMLStateEvent {
         }
 
         private static String findJsonString(String json, String key, String fallback) {
-            String pattern = "\"" + key + "\"\\s*:\\s*\"";
-            int start = json.indexOf(pattern);
-            if (start < 0) {
-                return fallback;
-            }
-            start += pattern.length();
-            int end = json.indexOf('"', start);
-            if (end < 0) {
-                return fallback;
-            }
-            return json.substring(start, end);
+            var p = java.util.regex.Pattern.compile(
+                "\"" + java.util.regex.Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"");
+            var m = p.matcher(json);
+            return m.find() ? m.group(1) : fallback;
         }
     }
 }

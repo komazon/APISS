@@ -106,19 +106,18 @@ public class LegacyRegistryBridge {
         if (event.getRegistryKey().equals(Registries.BLOCK)) {
             LOGGER.info("[互換レイヤー] Block登録フェーズ開始");
             fireLegacyBlockRegistration();
+            int blockCount = blockRegistry.getPendingEntries().size(); // flush 前に取得
             flushBlockCache(event);
-            LOGGER.info("[互換レイヤー] Block登録フェーズ完了: {}件",
-                    blockRegistry.getPendingEntries().size());
+            LOGGER.info("[互換レイヤー] Block 登録フェーズ完了：{}件", blockCount);
             maybeFireRegistryCompletion(event);
         }
 
         // ── アイテム登録フェーズ ──
         if (event.getRegistryKey().equals(Registries.ITEM)) {
             LOGGER.info("[互換レイヤー] Item登録フェーズ開始");
-            fireLegacyItemRegistration();
+            int itemCount = itemRegistry.getPendingEntries().size(); // flush 前に取得
             flushItemCache(event);
-            LOGGER.info("[互換レイヤー] Item登録フェーズ完了: {}件",
-                    itemRegistry.getPendingEntries().size());
+            LOGGER.info("[互換レイヤー] Item 登録フェーズ完了：{}件", itemCount);
             maybeFireRegistryCompletion(event);
         }
     }
