@@ -91,8 +91,14 @@ public class LegacyModLifecycleBridge {
             }
         }
 
-        // proxy フィールドの初期化を試みる
-        initializeProxyField(modClass, modInstance, modAnnotation);
+        // proxy フィールドの初期化を試みる（失敗しても MOD 登録は続行）
+        try {
+            initializeProxyField(modClass, modInstance, modAnnotation);
+        } catch (Exception e) {
+            LOGGER.error("[互換レイヤー] {} の proxy フィールド初期化中に予期せぬエラーが発生しました。proxy は null のままになります。", modClass.getSimpleName(), e);
+        } catch (LinkageError e) {
+            LOGGER.error("[互換レイヤー] {} の proxy フィールド初期化中にリンクエラーが発生しました。レガシー Mod が現在の環境と互換性のないクラスに依存しています。proxy は null のままになります。", modClass.getSimpleName(), e);
+        }
 
         loadedMods.add(new LegacyModEntry(
                 modId, modInstance, preInitMethods, initMethods, postInitMethods, metadata));
@@ -188,9 +194,14 @@ public class LegacyModLifecycleBridge {
         } catch (NoSuchMethodException e) {
             LOGGER.error("[互換レイヤー] proxy クラスにデフォルトコンストラクタが見つかりません：{}", proxyClassName, e);
         } catch (ExceptionInInitializerError e) {
-            LOGGER.error("[互換レイヤー] proxy クラスの初期化中にエラーが発生しました：{}", proxyClassName, e.getCause());
+            LOGGER.error("[互換レイヤー] proxy クラスの初期化中にエラーが発生しました：{} - 原因: {}", proxyClassName, e.getCause() != null ? e.getCause().getMessage() : "不明", e);
+            LOGGER.warn("[互換レイヤー] このエラーは、レガシー Mod が現在の環境と互換性のないクラス（例：LegacyGuiScreen）に依存している可能性があります。proxy フィールドは null のままになります。");
         } catch (NoClassDefFoundError e) {
-            LOGGER.error("[互換レイヤー] proxy クラスまたはその依存クラスが見つかりません：{} - {}", proxyClassName, e.getMessage());
+            LOGGER.error("[互換レイヤー] proxy クラスまたはその依存クラスが見つかりません：{} - {}", proxyClassName, e.getMessage(), e);
+            LOGGER.warn("[互換レイヤー] このエラーは、レガシー Mod が現在の環境と互換性のないクラスに依存している可能性があります。proxy フィールドは null のままになります。");
+        } catch (NoSuchMethodError e) {
+            LOGGER.error("[互換レイヤー] proxy クラスの初期化中にメソッドが見つかりません：{} - {}", proxyClassName, e.getMessage(), e);
+            LOGGER.warn("[互換レイヤー] このエラーは、レガシー Mod が現在の環境と互換性のない API を使用している可能性があります。proxy フィールドは null のままになります。");
         }
     }
 
