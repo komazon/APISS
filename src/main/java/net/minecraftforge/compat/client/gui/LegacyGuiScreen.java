@@ -12,7 +12,7 @@ public class LegacyGuiScreen extends Gui {
     /**
      * Minecraft instance (field_146297_k in 1.12.2)
      */
-    protected Minecraft field_146297_k;
+    protected net.minecraftforge.compat.client.Minecraft field_146297_k;
     
     /**
      * Width of the screen
@@ -28,10 +28,11 @@ public class LegacyGuiScreen extends Gui {
      * Default constructor for 1.12.2 compatibility
      */
     public LegacyGuiScreen() {
-        this.field_146297_k = Minecraft.getInstance();
-        if (this.field_146297_k != null) {
-            this.width = this.field_146297_k.getWindow().getScreenWidth();
-            this.height = this.field_146297_k.getWindow().getScreenHeight();
+        super(net.minecraft.client.Minecraft.getInstance());
+        this.field_146297_k = Minecraft.func_71410_x();
+        if (this.field_146297_k != null && this.field_146297_k.getVanilla() != null) {
+            this.width = this.field_146297_k.getVanilla().getWindow().getScreenWidth();
+            this.height = this.field_146297_k.getVanilla().getWindow().getScreenHeight();
         }
     }
     
