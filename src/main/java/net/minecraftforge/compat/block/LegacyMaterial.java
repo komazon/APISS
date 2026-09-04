@@ -1,5 +1,7 @@
 package net.minecraftforge.compat.block;
 
+import java.lang.reflect.Field;
+
 /**
  * 1.12.2 Compatibility Layer: Compatible class for net.minecraft.block.material.Material in 1.12.2
  * Provides values like Material.ROCK, Material.WOOD for 1.12.2
@@ -43,28 +45,30 @@ public enum LegacyMaterial {
     BARRIER,
     STRUCTURE_VOID;
 
-    // 1.12.2 compatibility field (field_151576_e - canBurn)
-    public final boolean canBurn;
+    /**
+     * Whether this material can burn.
+     * Non-final so the static initializer can set per-constant values.
+     */
+    public boolean canBurn;
+
+    /**
+     * 1.12.2 obfuscated name for canBurn (field_151576_e).
+     * RTM and other mods compiled against obfuscated 1.12.2 mappings
+     * access this field by its srg name directly via bytecode, so both
+     * names must exist as real fields.
+     */
+    public boolean field_151576_e;
 
     LegacyMaterial() {
-        // canBurn is set in static initializer block
         this.canBurn = false;
+        this.field_151576_e = false;
     }
-    
+
     static {
-        // Can't modify final fields directly, use reflection as workaround
-        try {
-            java.lang.reflect.Field canBurnField = LegacyMaterial.class.getDeclaredField("canBurn");
-            canBurnField.setAccessible(true);
-            
-            canBurnField.set(WOOD, true);
-            canBurnField.set(PLANTS, true);
-            canBurnField.set(VINE, true);
-            canBurnField.set(CLOTH, true);
-            canBurnField.set(CARPET, true);
-            canBurnField.set(LEAVES, true);
-        } catch (Exception e) {
-            // Ignore reflection failures
+        // Materials that could catch fire in 1.12.2
+        for (LegacyMaterial m : new LegacyMaterial[]{WOOD, PLANTS, VINE, CLOTH, CARPET, LEAVES}) {
+            m.canBurn = true;
+            m.field_151576_e = true;
         }
     }
 }
