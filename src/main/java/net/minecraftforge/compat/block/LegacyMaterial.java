@@ -47,7 +47,24 @@ public enum LegacyMaterial {
     public final boolean canBurn;
 
     LegacyMaterial() {
-        this.canBurn = (this == WOOD || this == PLANTS || this == VINE || 
-                        this == CLOTH || this == CARPET || this == LEAVES);
+        // canBurn is set in static initializer block
+        this.canBurn = false;
+    }
+    
+    static {
+        // Can't modify final fields directly, use reflection as workaround
+        try {
+            java.lang.reflect.Field canBurnField = LegacyMaterial.class.getDeclaredField("canBurn");
+            canBurnField.setAccessible(true);
+            
+            canBurnField.set(WOOD, true);
+            canBurnField.set(PLANTS, true);
+            canBurnField.set(VINE, true);
+            canBurnField.set(CLOTH, true);
+            canBurnField.set(CARPET, true);
+            canBurnField.set(LEAVES, true);
+        } catch (Exception e) {
+            // Ignore reflection failures
+        }
     }
 }
