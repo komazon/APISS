@@ -2,95 +2,137 @@ package net.minecraftforge.compat.client.model;
 
 /**
  * 1.12.2 Compatibility Layer: ModelRenderer stub
- * Provides compatibility for 1.12.2 mods that use ModelRenderer to define model parts.
  *
- * RTM's ModelMissing (and many other mods) call:
- *   new ModelRenderer(this, texOffX, texOffY)
- * which maps to net.minecraft.client.model.ModelRenderer in 1.12.2.
+ * RTM/NGTLib は1.12.2の難読化済みバイトコードをそのまま使うため、
+ * addBox系メソッドを SRG 難読化名 (func_78789_a 等) でも呼び出す。
+ * 難読化名エイリアスを全て定義する。
+ *
+ * SRG mapping (1.12.2):
+ *   func_78789_a = addBox(float,float,float,int,int,int)
+ *   func_78788_a = addBox(float,float,float,int,int,int,float)  [delta variant]
+ *   func_78790_a = setRotationPoint(float,float,float)
+ *   func_78769_b = setTextureOffset(int,int)
  */
 public class ModelRenderer {
 
-    /** Rotation point X (field_78799_f in 1.12.2) */
+    // --- Fields (SRG names must also be present as real fields) ---
+
+    /** rotationPointX — field_78799_f */
     public float rotationPointX;
-    /** Rotation point Y (field_78798_g in 1.12.2) */
+    public float field_78799_f;
+
+    /** rotationPointY — field_78798_g */
     public float rotationPointY;
-    /** Rotation point Z (field_78797_h in 1.12.2) */
+    public float field_78798_g;
+
+    /** rotationPointZ — field_78797_h */
     public float rotationPointZ;
+    public float field_78797_h;
 
-    /** Rotation angle X (field_78795_j in 1.12.2) */
+    /** rotateAngleX — field_78795_j */
     public float rotateAngleX;
-    /** Rotation angle Y (field_78796_k in 1.12.2) */
+    public float field_78795_j;
+
+    /** rotateAngleY — field_78796_k */
     public float rotateAngleY;
-    /** Rotation angle Z (field_78808_l in 1.12.2) */
+    public float field_78796_k;
+
+    /** rotateAngleZ — field_78808_l */
     public float rotateAngleZ;
+    public float field_78808_l;
 
-    /** Whether this part is rendered (field_78801_d in 1.12.2) */
+    /** showModel — field_78801_d */
     public boolean showModel = true;
+    public boolean field_78801_d = true;
 
-    /** Mirror flag (field_78807_m in 1.12.2) */
+    /** mirror — field_78807_m */
     public boolean mirror = false;
+    public boolean field_78807_m = false;
 
-    /** Texture offset X (field_78809_t in 1.12.2) */
+    /** Texture offset X — field_78809_t */
     public int field_78809_t;
 
-    /** Texture offset Y (field_78810_n in 1.12.2) */
+    /** Texture offset Y — field_78810_n */
     public int field_78810_n;
 
     @SuppressWarnings("unused")
     private final ModelBase model;
 
-    /**
-     * Primary 1.12.2 constructor: ModelRenderer(ModelBase model, int texOffX, int texOffY)
-     */
+    // ---------------------------------------------------------------
+    // Constructors
+    // ---------------------------------------------------------------
+
+    /** Primary 1.12.2 constructor */
     public ModelRenderer(ModelBase model, int texOffX, int texOffY) {
         this.model = model;
         this.field_78809_t = texOffX;
         this.field_78810_n = texOffY;
     }
 
-    /**
-     * Secondary constructor without texture offset (uses model's current offset)
-     */
+    /** No-offset constructor */
     public ModelRenderer(ModelBase model) {
         this(model, model != null ? model.field_78089_u : 0, 0);
     }
 
-    /**
-     * setTextureOffset(int x, int y) — returns this for chaining
-     */
+    // ---------------------------------------------------------------
+    // addBox — readable name + SRG alias
+    // ---------------------------------------------------------------
+
+    /** addBox(float x, float y, float z, int dx, int dy, int dz) */
+    public ModelRenderer addBox(float x, float y, float z, int dx, int dy, int dz) {
+        return this;
+    }
+
+    /** SRG alias: func_78789_a */
+    public ModelRenderer func_78789_a(float x, float y, float z, int dx, int dy, int dz) {
+        return addBox(x, y, z, dx, dy, dz);
+    }
+
+    /** addBox with expansion delta */
+    public ModelRenderer addBox(float x, float y, float z, int dx, int dy, int dz, float delta) {
+        return this;
+    }
+
+    /** SRG alias: func_78788_a */
+    public ModelRenderer func_78788_a(float x, float y, float z, int dx, int dy, int dz, float delta) {
+        return addBox(x, y, z, dx, dy, dz, delta);
+    }
+
+    // ---------------------------------------------------------------
+    // setRotationPoint — readable name + SRG alias
+    // ---------------------------------------------------------------
+
+    public void setRotationPoint(float x, float y, float z) {
+        this.rotationPointX = x; this.field_78799_f = x;
+        this.rotationPointY = y; this.field_78798_g = y;
+        this.rotationPointZ = z; this.field_78797_h = z;
+    }
+
+    /** SRG alias: func_78790_a */
+    public void func_78790_a(float x, float y, float z) {
+        setRotationPoint(x, y, z);
+    }
+
+    // ---------------------------------------------------------------
+    // setTextureOffset — readable name + SRG alias
+    // ---------------------------------------------------------------
+
     public ModelRenderer setTextureOffset(int x, int y) {
         this.field_78809_t = x;
         this.field_78810_n = y;
         return this;
     }
 
-    /**
-     * addBox(float x, float y, float z, int dx, int dy, int dz)
-     */
-    public ModelRenderer addBox(float x, float y, float z, int dx, int dy, int dz) {
-        return this; // stub — actual geometry not needed for compat layer
+    /** SRG alias: func_78769_b */
+    public ModelRenderer func_78769_b(int x, int y) {
+        return setTextureOffset(x, y);
     }
 
-    /**
-     * addBox with expansion delta
-     */
-    public ModelRenderer addBox(float x, float y, float z, int dx, int dy, int dz, float delta) {
-        return this;
-    }
+    // ---------------------------------------------------------------
+    // render — no-op stub
+    // ---------------------------------------------------------------
 
-    /**
-     * setRotationPoint(float x, float y, float z)
-     */
-    public void setRotationPoint(float x, float y, float z) {
-        this.rotationPointX = x;
-        this.rotationPointY = y;
-        this.rotationPointZ = z;
-    }
-
-    /**
-     * render(float scale) — no-op stub
-     */
     public void render(float scale) {
-        // RTM/NGTLib models are not rendered through the compat layer
+        // RTM/NGTLib モデルは互換レイヤー上では実描画しない
     }
 }
