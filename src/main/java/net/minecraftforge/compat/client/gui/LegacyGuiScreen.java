@@ -29,7 +29,27 @@ public class LegacyGuiScreen extends Gui {
      */
     public LegacyGuiScreen() {
         super(net.minecraft.client.Minecraft.getInstance());
-        this.field_146297_k = Minecraft.func_71410_x();
+        // field_146297_k will be set by the calling class if needed
+        // width and height will be set during render on the correct thread
+        this.width = 0;
+        this.height = 0;
+    }
+    
+    /**
+     * Get the Minecraft instance (field_146297_k in 1.12.2)
+     * Lazily initialized to avoid RenderSystem calls from wrong thread
+     */
+    protected net.minecraftforge.compat.client.Minecraft getField_146297_k() {
+        if (this.field_146297_k == null) {
+            this.field_146297_k = Minecraft.func_71410_x();
+        }
+        return this.field_146297_k;
+    }
+    
+    /**
+     * Update screen dimensions (called from render thread)
+     */
+    protected void updateDimensions() {
         if (this.field_146297_k != null && this.field_146297_k.getVanilla() != null) {
             this.width = this.field_146297_k.getVanilla().getWindow().getScreenWidth();
             this.height = this.field_146297_k.getVanilla().getWindow().getScreenHeight();
