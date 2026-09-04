@@ -17,6 +17,11 @@ public class ModelBase {
     public int textureHeight = 32;
     
     /**
+     * Texture offset X (field_78089_u in 1.12.2)
+     */
+    public int field_78089_u = 0;
+    
+    /**
      * Default constructor for 1.12.2 compatibility
      */
     public ModelBase() {
