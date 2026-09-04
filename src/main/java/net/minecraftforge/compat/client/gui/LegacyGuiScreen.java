@@ -10,29 +10,27 @@ import net.minecraft.client.gui.Gui;
 public class LegacyGuiScreen extends Gui {
     
     /**
-     * Minecraft instance (field_146297_k in 1.12.2)
+     * Minecraft instance (field_146297_k in 1.12.2) - lazily initialized
      */
     protected net.minecraftforge.compat.client.Minecraft field_146297_k;
     
     /**
-     * Width of the screen
+     * Width of the screen - lazily initialized on render thread
      */
     public int width = 0;
     
     /**
-     * Height of the screen
+     * Height of the screen - lazily initialized on render thread
      */
     public int height = 0;
     
     /**
      * Default constructor for 1.12.2 compatibility
+     * Does NOT call Minecraft.getInstance() to avoid RenderSystem errors from wrong thread
      */
     public LegacyGuiScreen() {
-        super(net.minecraft.client.Minecraft.getInstance());
-        // field_146297_k will be set by the calling class if needed
-        // width and height will be set during render on the correct thread
-        this.width = 0;
-        this.height = 0;
+        super(null); // Pass null to avoid RenderSystem call in Gui constructor
+        // All fields are lazily initialized when accessed on the correct thread
     }
     
     /**
@@ -42,6 +40,8 @@ public class LegacyGuiScreen extends Gui {
     protected net.minecraftforge.compat.client.Minecraft getField_146297_k() {
         if (this.field_146297_k == null) {
             this.field_146297_k = Minecraft.func_71410_x();
+            // Initialize dimensions when Minecraft instance is first accessed
+            this.updateDimensions();
         }
         return this.field_146297_k;
     }
@@ -60,6 +60,12 @@ public class LegacyGuiScreen extends Gui {
      * Called when the screen is initialized
      */
     public void init() {
+        // Ensure we're on the render thread and have valid dimensions
+        if (this.field_146297_k == null) {
+            getField_146297_k();
+        } else {
+            updateDimensions();
+        }
         // Legacy init method
     }
     
@@ -67,6 +73,12 @@ public class LegacyGuiScreen extends Gui {
      * Called when the screen should draw
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        // Ensure we're on the render thread and have valid dimensions
+        if (this.field_146297_k == null) {
+            getField_146297_k();
+        } else {
+            updateDimensions();
+        }
         // Legacy draw method
     }
     
