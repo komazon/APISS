@@ -1,5 +1,7 @@
 package net.minecraftforge.compat.client.gui;
 
+import net.minecraftforge.compat.client.Minecraft;
+
 /**
  * 1.12.2 Compatibility Layer: Base class for legacy GUI screens
  * Provides compatibility for 1.12.2 mods that extend GuiScreen
@@ -7,10 +9,15 @@ package net.minecraftforge.compat.client.gui;
 public class LegacyGuiScreen {
     
     /**
+     * Minecraft instance (field_146297_k in 1.12.2)
+     */
+    protected Minecraft field_146297_k;
+    
+    /**
      * Default constructor for 1.12.2 compatibility
      */
     public LegacyGuiScreen() {
-        // Empty constructor for legacy mod compatibility
+        this.field_146297_k = Minecraft.getInstance();
     }
     
     /**
