@@ -251,3 +251,10 @@ idea {
         downloadJavadoc = true
     }
 }
+
+// net/minecraft/* スタブクラスをjarから除外する。
+// これらはコンパイル時の型解決にのみ使用され、実行時は本物のMCクラスが提供する。
+// NeoForgeのJPMSモジュールローダーがsplit packageを検出しクラッシュするのを防ぐ。
+tasks.named('jar', Jar) {
+    exclude 'net/minecraft/**'
+}
